@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="TrackStats by Circuit Drift Labs — private, local music-library analytics in your browser.">
+  <title>TrackStats — Circuit Drift Labs</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="https://circuitdriftlabs.djshellshoxxx.github.io/" target="_blank" rel="noopener"><span class="mark">CD</span><span>Circuit Drift Labs</span></a>
+  <nav><a href="https://djshellshoxxx.github.io/TranspositionCalc/">Transposition</a><a href="https://djshellshoxxx.github.io/Miditest/">MIDItest</a><a href="https://djshellshoxxx.github.io/loudnessbatch/">LoudnessBatch</a></nav>
+</header>
+<main>
+  <section class="hero">
+    <div><p class="eyebrow">LOCAL MUSIC LIBRARY ANALYTICS</p><h1>TrackStats</h1><p>Scan a music folder and see what is actually in your collection: formats, bitrate, sample rate, duration, storage, tags, BPM, keys and metadata gaps.</p><p class="privacy">Your tracks stay on your device. TrackStats analyzes them locally in your browser.</p></div>
+    <div class="actions"><label class="button primary">Choose Music Folder<input id="folder" type="file" webkitdirectory multiple hidden></label><label class="button">Choose Files<input id="files" type="file" accept="audio/*,.flac,.aiff,.aif,.ogg,.opus,.m4a" multiple hidden></label><button id="cancel" class="button danger" disabled>Cancel Scan</button></div>
+  </section>
+
+  <section id="scanBox" class="panel status-panel"><div class="status-row"><strong id="status">Choose a folder or audio files to begin.</strong><span id="progressText"></span></div><div class="progress"><span id="progressBar"></span></div><div id="warnings" class="warnings"></div></section>
+
+  <section id="overview" class="stats-grid"></section>
+
+  <section class="panel controls">
+    <input id="search" type="search" placeholder="Search title, artist, album, filename…">
+    <select id="formatFilter"><option value="">All formats</option></select>
+    <select id="qualityFilter"><option value="">All quality</option><option value="lossless">Lossless</option><option value="lossy">Lossy</option><option value="low">Low bitrate (&lt;192 kbps)</option><option value="missing">Missing metadata</option></select>
+    <button id="clearFilters">Clear filters</button>
+    <button id="exportCsv">Export CSV</button>
+    <button id="exportJson">Export JSON</button>
+  </section>
+
+  <section class="dashboard-grid">
+    <article class="panel chart"><h2>Formats</h2><div id="chartFormat"></div></article>
+    <article class="panel chart"><h2>Storage by format</h2><div id="chartStorage"></div></article>
+    <article class="panel chart"><h2>Bitrate</h2><div id="chartBitrate"></div></article>
+    <article class="panel chart"><h2>Sample rate</h2><div id="chartSample"></div></article>
+    <article class="panel chart"><h2>BPM</h2><div id="chartBpm"></div></article>
+    <article class="panel chart"><h2>Key</h2><div id="chartKey"></div></article>
+  </section>
+
+  <section class="panel health"><div><h2>Library health</h2><p>These are measurable gaps in the scan, not a subjective quality score.</p></div><div id="healthGrid" class="health-grid"></div></section>
+
+  <section id="related" class="related-grid">
+    <a class="related-card" href="https://djshellshoxxx.github.io/TranspositionCalc/"><strong>Working with BPM or key?</strong><span>Open Transposition Calculator to match pitch, key and tempo.</span></a>
+    <a class="related-card" href="https://djshellshoxxx.github.io/loudnessbatch/"><strong>Want deeper audio analysis?</strong><span>Use LoudnessBatch for loudness, peak, dynamics, stereo and reference comparisons.</span></a>
+  </section>
+
+  <section class="panel table-panel"><div class="table-head"><div><h2>Track Explorer</h2><p id="rowCount">0 tracks</p></div></div><div class="table-wrap"><table><thead><tr><th>Track</th><th>Artist</th><th>Format</th><th>Bitrate</th><th>Sample rate</th><th>Bits</th><th>Duration</th><th>BPM</th><th>Key</th><th>Size</th></tr></thead><tbody id="rows"></tbody></table></div></section>
+</main>
+<footer><p>TrackStats by <a href="https://circuitdriftlabs.djshellshoxxx.github.io/">Circuit Drift Labs</a>. No uploads, accounts or tracking of library contents.</p><p class="experiments">Experiments: <a href="https://djshellshoxxx.github.io/binerualwebeats/">Binaural Web Beats</a> · <a href="https://djshellshoxxx.github.io/babbleforge/">BabbleForge</a></p></footer>
+<script type="module" src="./app.js"></script>
+</body>
+</html>
