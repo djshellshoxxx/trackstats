@@ -17,9 +17,9 @@
 </header>
 <main>
   <section class="hero">
-    <div><p class="eyebrow">LOCAL MUSIC LIBRARY ANALYTICS</p><h1>TrackStats</h1><p>Scan a music folder and see what is actually in your collection: formats, bitrate, sample rate, duration, storage, tags, BPM, keys, genres, folders and metadata gaps.</p><p class="privacy">Your tracks stay on your device. TrackStats analyzes them locally in your browser.</p></div>
-    <div class="actions"><label class="button primary">Choose Music Folder<input id="folder" type="file" webkitdirectory multiple hidden></label><label class="button">Choose Files<input id="files" type="file" accept="audio/*,.flac,.aiff,.aif,.ogg,.opus,.m4a" multiple hidden></label><button id="cancel" class="button danger" disabled>Cancel Scan</button></div>
-  </section>
+    <div><p class="eyebrow">LOCAL MUSIC LIBRARY ANALYTICS</p><h1>TrackStats</h1><p>Scan a music folder and see what is actually in your collection: formats, bitrate, sample rate, duration, storage, tags, BPM, keys, genres, folders and metadata gaps.</p><p class="privacy">Your files are scanned locally in your browser and never uploaded. Nothing leaves your device.</p></div>
+    <div class="actions"><label class="button primary">Scan Music Folder<input aria-describedby="scanPrivacy" id="folder" type="file" webkitdirectory multiple hidden></label><label class="button">Scan Audio Files<input aria-describedby="scanPrivacy" id="files" type="file" accept="audio/*,.flac,.aiff,.aif,.ogg,.opus,.m4a" multiple hidden></label><button id="cancel" class="button danger" disabled>Cancel Scan</button></div>
+  <p id="scanPrivacy" class="privacy">Local scan only. Your browser may call the folder selection “Upload”, but TrackStats only reads the files on your device. It does not send them to a server.</p></section>
 
   <section id="scanBox" class="panel status-panel"><div class="status-row"><strong id="status">Choose a folder or audio files to begin.</strong><span id="progressText"></span></div><div class="progress"><span id="progressBar"></span></div><div id="warnings" class="warnings"></div></section>
   <section id="overview" class="stats-grid"></section>
