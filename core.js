@@ -104,3 +104,23 @@ export function countsBy(tracks,key,mapper=v=>v||'Unknown') {
 }
 
 export function csvEscape(v){ const s=String(v??''); return /[",\n]/.test(s)?`"${s.replaceAll('"','""')}"`:s; }
+
+// Sort raw metadata before the explorer's display limit; keep unknown values last.
+export function sortTracks(rows, key, direction = 'ascending') {
+  const numeric = new Set(['bitrate', 'sampleRate', 'bitDepth', 'channels', 'duration', 'bpm', 'size']);
+  const collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
+  const value = t => {
+    const raw = key === 'title' ? t.title || t.name : t[key];
+    if (numeric.has(key)) {
+      const n = Number(raw);
+      return Number.isFinite(n) && n > 0 ? n : null;
+    }
+    return raw == null || String(raw).trim() === '' ? null : String(raw).trim();
+  };
+  return [...rows].sort((a, b) => {
+    const av = value(a), bv = value(b);
+    if (av === null || bv === null) return av === bv ? 0 : av === null ? 1 : -1;
+    const comparison = numeric.has(key) ? av - bv : collator.compare(av, bv);
+    return direction === 'descending' ? -comparison : comparison;
+  });
+}

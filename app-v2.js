@@ -1,9 +1,10 @@
-import {AUDIO_EXTENSIONS,extensionOf,formatBytes,formatDuration,bitrateBucket,parseID3,parseWav,parseFlac,summarize,countsBy,csvEscape} from './core.js';
+import {AUDIO_EXTENSIONS,extensionOf,formatBytes,formatDuration,bitrateBucket,parseID3,parseWav,parseFlac,summarize,countsBy,csvEscape,sortTracks} from './core.js';
 
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const els={folder:$('#folder'),files:$('#files'),cancel:$('#cancel'),status:$('#status'),progressText:$('#progressText'),progressBar:$('#progressBar'),warnings:$('#warnings'),overview:$('#overview'),search:$('#search'),formatFilter:$('#formatFilter'),qualityFilter:$('#qualityFilter'),chartStyle:$('#chartStyle'),clearFilters:$('#clearFilters'),exportCsv:$('#exportCsv'),exportJson:$('#exportJson'),rows:$('#rows'),rowCount:$('#rowCount'),healthGrid:$('#healthGrid'),insights:$('#insights')};
 let tracks=[],filtered=[],cancelled=false;
+let sortKey=null,sortDirection='ascending';
 
 function mediaMetadata(file){return new Promise(resolve=>{const url=URL.createObjectURL(file),a=document.createElement('audio');let done=false;const finish=(o={})=>{if(done)return;done=true;URL.revokeObjectURL(url);a.remove();resolve(o)};a.preload='metadata';a.src=url;a.onloadedmetadata=()=>finish({duration:Number.isFinite(a.duration)?a.duration:0});a.onerror=()=>finish({});setTimeout(()=>finish({}),6000)})}
 async function readHead(file,bytes=768*1024){return file.slice(0,Math.min(file.size,bytes)).arrayBuffer()}
@@ -28,10 +29,23 @@ function renderHealth(rows){const s=summarize(rows),d=duplicateStats(rows),items
 function modeValue(rows,key){const p=countsBy(rows,key,v=>v||'Unknown').filter(([k])=>k!=='Unknown')[0];return p?p[0]:'—'}
 function renderInsights(rows){if(!els.insights)return;const years=rows.map(t=>Number(t.year)).filter(y=>y>=1900&&y<2200),artists=countsBy(rows,'artist',v=>v||'Unknown').filter(([k])=>k!=='Unknown'),oneHit=artists.filter(([,v])=>v===1).length,dups=duplicateStats(rows);const bpm=rows.map(t=>Number(t.bpm)).filter(v=>v>0);els.insights.innerHTML=[stat('Top artist',artists[0]?.[0]||'—'),stat('Top genre',modeValue(rows,'genre')),stat('Most common key',modeValue(rows,'key')),stat('Median-ish BPM',bpm.length?Math.round(bpm.sort((a,b)=>a-b)[Math.floor(bpm.length/2)]):'—'),stat('Oldest release',years.length?Math.min(...years):'—'),stat('Newest release',years.length?Math.max(...years):'—'),stat('One-track artists',oneHit.toLocaleString()),stat('Possible duplicate tracks',dups.tracks.toLocaleString())].join('')}
 function td(v){return `<td>${esc(v??'—')}</td>`}
-function renderTable(rows){els.rowCount.textContent=`${rows.length.toLocaleString()} of ${tracks.length.toLocaleString()} tracks`;els.rows.innerHTML=rows.slice(0,1500).map(t=>`<tr title="${esc(t.path)}">${td(t.title||t.name)}${td(t.artist)}${td(t.album)}${td(t.genre)}${td((t.ext||'').toUpperCase())}${td(t.bitrate?`${Math.round(t.bitrate)} kbps`:'—')}${td(t.sampleRate?`${t.sampleRate} Hz`:'—')}${td(t.bitDepth||'—')}${td(t.channels||'—')}${td(formatDuration(t.duration))}${td(t.bpm||'—')}${td(t.key||'—')}${td(formatBytes(t.size))}</tr>`).join('')}
+function renderTable(rows){els.rowCount.textContent=`${rows.length.toLocaleString()} of ${tracks.length.toLocaleString()} tracks`;els.rows.innerHTML=(sortKey?sortTracks(rows,sortKey,sortDirection):rows).slice(0,1500).map(t=>`<tr title="${esc(t.path)}">${td(t.title||t.name)}${td(t.artist)}${td(t.album)}${td(t.genre)}${td((t.ext||'').toUpperCase())}${td(t.bitrate?`${Math.round(t.bitrate)} kbps`:'—')}${td(t.sampleRate?`${t.sampleRate} Hz`:'—')}${td(t.bitDepth||'—')}${td(t.channels||'—')}${td(formatDuration(t.duration))}${td(t.bpm||'—')}${td(t.key||'—')}${td(formatBytes(t.size))}</tr>`).join('')}
 function syncFormatOptions(){const val=els.formatFilter.value,exts=[...new Set(tracks.map(t=>t.ext).filter(Boolean))].sort();els.formatFilter.innerHTML='<option value="">All formats</option>'+exts.map(x=>`<option value="${esc(x)}">${esc(x.toUpperCase())}</option>`).join('');els.formatFilter.value=exts.includes(val)?val:''}
 function render(full=false){filtered=currentRows();if(full)syncFormatOptions();renderOverview(filtered);renderCharts(filtered);renderHealth(filtered);renderInsights(filtered);renderTable(filtered)}
 function download(name,type,text){const blob=new Blob([text],{type}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 function exportCsv(){const headers=['name','path','title','artist','album','genre','year','bpm','key','format','bitrate','sampleRate','bitDepth','channels','duration','size','lossless'];const lines=[headers.join(','),...filtered.map(t=>headers.map(h=>csvEscape(t[h]??(h==='format'?t.ext:''))).join(','))];download('trackstats.csv','text/csv;charset=utf-8',lines.join('\n'))}
 function exportJson(){download('trackstats.json','application/json',JSON.stringify({schema:2,created:new Date().toISOString(),summary:summarize(filtered),tracks:filtered},null,2))}
+document.querySelectorAll('.column-sort').forEach(button=>{
+  button.addEventListener('click',()=>{
+    const key=button.dataset.sort;
+    sortDirection=sortKey===key&&sortDirection==='ascending'?'descending':'ascending';
+    sortKey=key;
+    document.querySelectorAll('.column-sort').forEach(header=>{
+      const active=header.dataset.sort===sortKey;
+      header.closest('th').setAttribute('aria-sort',active?sortDirection:'none');
+      header.querySelector('.sort-indicator').textContent=active?(sortDirection==='ascending'?' ↑':' ↓'):' ↕';
+    });
+    renderTable(filtered);
+  });
+});
 els.folder.onchange=e=>runScan(e.target.files);els.files.onchange=e=>runScan(e.target.files);els.cancel.onclick=()=>cancelled=true;for(const e of [els.search,els.formatFilter,els.qualityFilter])e.addEventListener(e.tagName==='INPUT'?'input':'change',()=>render());els.chartStyle?.addEventListener('change',()=>render());els.clearFilters.onclick=()=>{els.search.value='';els.formatFilter.value='';els.qualityFilter.value='';render()};els.exportCsv.onclick=exportCsv;els.exportJson.onclick=exportJson;render(true);
