@@ -1,0 +1,22 @@
+name: QA tests
+on:
+  push:
+    paths:
+      - 'core.js'
+      - 'tests/**'
+      - '.github/workflows/qa.yml'
+  pull_request:
+    paths:
+      - 'core.js'
+      - 'tests/**'
+      - '.github/workflows/qa.yml'
+jobs:
+  node:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node tests/core.test.mjs
+      - run: node --input-type=module --check < core.js

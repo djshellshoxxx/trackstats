@@ -103,7 +103,12 @@ export function countsBy(tracks,key,mapper=v=>v||'Unknown') {
   const m=new Map(); for(const t of tracks){ const k=mapper(t[key],t); m.set(k,(m.get(k)||0)+1); } return [...m.entries()].sort((a,b)=>b[1]-a[1]);
 }
 
-export function csvEscape(v){ const s=String(v??''); return /[",\n]/.test(s)?`"${s.replaceAll('"','""')}"`:s; }
+export function csvEscape(v){
+  let s=String(v??'');
+  // Untrusted ID3 values must not be interpreted as spreadsheet formulas.
+  if (/^\s*[=+\-@]/.test(s) || /^[\t\r]/.test(s)) s="'"+s;
+  return /[",\r\n]/.test(s)?'"'+s.replaceAll('"','""')+'"':s;
+}
 
 // Sort raw metadata before the explorer's display limit; keep unknown values last.
 export function sortTracks(rows, key, direction = 'ascending') {
