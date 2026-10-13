@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {extensionOf,formatBytes,formatDuration,bitrateBucket,parseWav,summarize,countsBy} from '../core.js';
+import {extensionOf,formatBytes,formatDuration,bitrateBucket,parseWav,summarize,countsBy,csvEscape} from '../core.js';
 
 assert.equal(extensionOf('Track.MP3'),'mp3');
 assert.equal(formatBytes(1024),'1.00 KB');
@@ -15,4 +15,13 @@ const parsed=parseWav(wav); assert.equal(parsed.sampleRate,44100);assert.equal(p
 const s=summarize([{size:100,duration:10,artist:'A',album:'X',genre:'G',lossless:true,artwork:true},{size:200,duration:20,artist:'B',album:'X',lossless:false}]);
 assert.equal(s.tracks,2);assert.equal(s.totalBytes,300);assert.equal(s.artists,2);assert.equal(s.albums,1);assert.equal(s.missingGenre,1);assert.equal(s.lossless,1);
 assert.deepEqual(countsBy([{ext:'mp3'},{ext:'wav'},{ext:'mp3'}],'ext'),[['mp3',2],['wav',1]]);
+assert.equal(csvEscape('=1+1'), "'=1+1");
+assert.equal(csvEscape('+SUM(2,2)'), "'+SUM(2,2)");
+assert.equal(csvEscape('@SUM(1,2)'), "'@SUM(1,2)");
+assert.equal(csvEscape('  =HYPERLINK(1)'), "'  =HYPERLINK(1)");
+assert.equal(csvEscape('\\t=1+1'), "'\\t=1+1");
+assert.equal(csvEscape('line1\\rline2'), '"line1\\rline2"');
+assert.equal(csvEscape('Track, Name'), '"Track, Name"');
+assert.equal(csvEscape('Normal Artist'), 'Normal Artist');
+
 console.log('TrackStats core tests: PASS');
