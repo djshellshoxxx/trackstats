@@ -19,8 +19,8 @@ assert.equal(csvEscape('=1+1'), "'=1+1");
 assert.equal(csvEscape('+SUM(2,2)'), `"'+SUM(2,2)"`);
 assert.equal(csvEscape('@SUM(1,2)'), `"'@SUM(1,2)"`);
 assert.equal(csvEscape('  =HYPERLINK(1)'), "'  =HYPERLINK(1)");
-assert.equal(csvEscape('\\t=1+1'), "'\\t=1+1");
-assert.equal(csvEscape('line1\\rline2'), '"line1\\rline2"');
+assert.equal(csvEscape('\t=1+1'), "'\t=1+1");
+assert.equal(csvEscape('line1\rline2'), '"line1\rline2"');
 assert.equal(csvEscape('Track, Name'), '"Track, Name"');
 assert.equal(csvEscape('Normal Artist'), 'Normal Artist');
 
