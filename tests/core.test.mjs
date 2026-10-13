@@ -16,8 +16,8 @@ const s=summarize([{size:100,duration:10,artist:'A',album:'X',genre:'G',lossless
 assert.equal(s.tracks,2);assert.equal(s.totalBytes,300);assert.equal(s.artists,2);assert.equal(s.albums,1);assert.equal(s.missingGenre,1);assert.equal(s.lossless,1);
 assert.deepEqual(countsBy([{ext:'mp3'},{ext:'wav'},{ext:'mp3'}],'ext'),[['mp3',2],['wav',1]]);
 assert.equal(csvEscape('=1+1'), "'=1+1");
-assert.equal(csvEscape('+SUM(2,2)'), "'+SUM(2,2)");
-assert.equal(csvEscape('@SUM(1,2)'), "'@SUM(1,2)");
+assert.equal(csvEscape('+SUM(2,2)'), `"'+SUM(2,2)"`);
+assert.equal(csvEscape('@SUM(1,2)'), `"'@SUM(1,2)"`);
 assert.equal(csvEscape('  =HYPERLINK(1)'), "'  =HYPERLINK(1)");
 assert.equal(csvEscape('\\t=1+1'), "'\\t=1+1");
 assert.equal(csvEscape('line1\\rline2'), '"line1\\rline2"');
