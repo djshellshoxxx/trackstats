@@ -37,6 +37,14 @@ node tests/core.test.mjs
 
 Serve the repository root with any static HTTP server for local browser testing.
 
+## Verification status
+
+In a documentation pass on Linux with Node 22-compatible tooling, `node tests/core.test.mjs` printed `TrackStats core tests: PASS`, `node --input-type=module --check < core.js` passed, and `node --check` passed for `app.js`, `app-v2.js` and `ui-assistance.js`. The browser UI was not tested in that pass. `index.html` loads `app-v2.js` and `ui-assistance.js`. The CI workflows are `.github/workflows/qa.yml` and `pages.yml`.
+
+## Wiki
+
+Wiki pages are in [`docs/wiki/`](docs/wiki/Home.md).
+
 ## Design/spec
 
 See `docs/superpowers/specs/` and `docs/superpowers/plans/`.
